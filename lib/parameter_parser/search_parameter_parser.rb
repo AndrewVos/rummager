@@ -28,6 +28,7 @@ private
       query: normalize_query(single_param("q")),
       order: order,
       return_fields: return_fields,
+      allow_group_by: allow_group_by,
       filters: filters,
       facets: facets,
       debug: debug_options,
@@ -99,6 +100,21 @@ private
       @errors << "Some requested fields are not valid return fields: #{disallowed_fields}"
     end
     fields
+  end
+
+  # Get a list of the fields to request in results from elasticsearch
+  def allow_group_by
+    group_fields = character_separated_param("allow_group_by")
+    if group_fields.empty?
+      return []
+    end
+    disallowed_fields = group_fields - @schema.allowed_group_fields
+    group_fields = group_fields - disallowed_fields
+
+    if disallowed_fields.any?
+      @errors << "Some requested fields are not valid allow_group_by fields: #{disallowed_fields}"
+    end
+    group_fields
   end
 
   def parameters_starting_with(prefix)

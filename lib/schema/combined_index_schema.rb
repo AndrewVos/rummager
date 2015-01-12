@@ -38,6 +38,18 @@ class CombinedIndexSchema
     }.to_a
   end
 
+  # Get the names of fields which are allowed to be grouped on.
+  #
+  # Currently, we only know how to group by fields which have a small number of
+  # text values, so we restrict it to fields which have a filter type of 'text'
+  def allowed_group_fields
+    @allowed_group_fields ||= each_field_with_object(Set.new) { |field_name, field_definition, results|
+      if field_definition.type.filter_type == 'name'
+        results << field_name
+      end
+    }.to_a
+  end
+
 private
 
   # Call &block for every field defined in any of the document types.

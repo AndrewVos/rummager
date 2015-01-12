@@ -11,6 +11,7 @@ class SearchParameterParserTest < ShouldaUnitTestCase
       query: nil,
       order: nil,
       return_fields: BaseParameterParser::DEFAULT_RETURN_FIELDS,
+      allow_group_by: [],
       filters: [],
       facets: {},
       debug: {},
@@ -43,6 +44,7 @@ class SearchParameterParserTest < ShouldaUnitTestCase
     string_type.stubs(:filter_type).returns(nil)
     field_definitions = {}
     allowed_filter_fields = []
+    allowed_group_fields = []
     [
       ["title", string_type],
       ["description", string_type],
@@ -61,9 +63,13 @@ class SearchParameterParserTest < ShouldaUnitTestCase
       if type.filter_type
         allowed_filter_fields << field
       end
+      if type.filter_type == "text"
+        allowed_group_fields << field
+      end
     }
     @schema.stubs(:field_definitions).returns(field_definitions)
     @schema.stubs(:allowed_filter_fields).returns(allowed_filter_fields)
+    @schema.stubs(:allowed_group_fields).returns(allowed_group_fields)
   end
 
   should "return valid params given nothing" do
@@ -409,6 +415,22 @@ class SearchParameterParserTest < ShouldaUnitTestCase
 
       assert_nil opened_date_filter
     end
+  end
+
+  should "understand allow_group_by" do
+    p = SearchParameterParser.new({"allow_group_by" => ["mainstream_browse_pages", "organisations"]}, @schema)
+
+    assert_equal("", p.error)
+    assert p.valid?
+    assert_equal(expected_params({allow_group_by: ["mainstream_browse_pages", "organisations"]}), p.parsed_params)
+  end
+
+  should "understand invalid allow_group_by" do
+    p = SearchParameterParser.new({"allow_group_by" => ["title", "unknown"]}, @schema)
+
+    assert_equal(%{Some requested fields are not valid allow_group_by fields: ["title", "unknown"]}, p.error)
+    assert !p.valid?
+    assert_equal(expected_params({allow_group_by: []}), p.parsed_params)
   end
 
   should "understand an ascending sort" do
