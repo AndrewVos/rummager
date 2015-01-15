@@ -1,6 +1,7 @@
 require "elasticsearch/result_set"
 require "result_presenter"
 require "facet_result_presenter"
+require "result_grouper"
 require "unified_search/spell_check_presenter"
 
 # Presents a combined set of results for a GOV.UK site search
@@ -31,7 +32,7 @@ class UnifiedSearchPresenter
 
   def present
     {
-      results: presented_results,
+      results: grouped_results,
       total: es_response["hits"]["total"],
       start: search_params.start,
       facets: presented_facets,
@@ -43,6 +44,14 @@ private
 
   def suggested_queries
     UnifiedSearch::SpellCheckPresenter.new(es_response).present
+  end
+
+  def grouped_results
+    if @allowed_group_fields && search_params[:start] == 0
+      ResultGrouper.new(presented_results, @applied_filters).group
+    else
+      presented_results
+    end
   end
 
   def presented_results
