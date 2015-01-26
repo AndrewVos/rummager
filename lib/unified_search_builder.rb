@@ -65,11 +65,7 @@ class UnifiedSearchBuilder
   def boosted_query
     {
       custom_filters_score: {
-        query: {
-          bool: {
-            should: [core_query]
-          }
-        },
+        query: core_query,
         filters: boost_filters,
         score_mode: "multiply",
       }
@@ -77,7 +73,7 @@ class UnifiedSearchBuilder
   end
 
   def boost_filters
-    (format_boosts + [time_boost, closed_org_boost, devolved_org_boost, entities_boost]).compact
+    (format_boosts + [time_boost, closed_org_boost, devolved_org_boost]).compact
   end
 
   def best_bets
@@ -248,7 +244,8 @@ class UnifiedSearchBuilder
   end
 
   def should_conditions
-    exact_field_boosts + [ exact_match_boost, shingle_token_filter_boost ]
+    exact_field_boosts + [ exact_match_boost, shingle_token_filter_boost,
+                           entities_boost].compact
   end
 
   def query_analyzer
@@ -400,8 +397,7 @@ class UnifiedSearchBuilder
 
   def entities_boost
     {
-      filter: { terms: { entities: entities} },
-      boost: 20
+      terms: { entities: entities, boost: 20},
     } unless entities.empty?
   end
 
