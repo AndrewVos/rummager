@@ -4,6 +4,7 @@ require "yaml"
 class SchemaConfig
   def initialize(config_path)
     @config_path = config_path
+    @field_definitions = FieldDefinitions.new(config_path)
   end
 
   def elasticsearch_schema
