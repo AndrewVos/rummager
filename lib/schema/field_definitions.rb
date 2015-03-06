@@ -1,7 +1,7 @@
 require "json"
 require "schema/field_types"
 
-FieldDefinition = Struct.new("FieldDefinition", :name, :type, :description, :children)
+FieldDefinition = Struct.new("FieldDefinition", :name, :type, :description, :children, :allowed_values)
 
 class FieldDefinitions
   def initialize(definitions)
