@@ -68,7 +68,8 @@
     "es_config": {
       "type": "object",
       "enabled": "true",
-      "dynamic": "strict"
+      "dynamic": "strict",
+      "include_in_all": false
     }
   },
 
@@ -77,7 +78,8 @@
     "children": "dynamic",
     "es_config": {
       "type": "object",
-      "enabled": "false"
+      "enabled": "false",
+      "include_in_all": false
     }
   }
 }
