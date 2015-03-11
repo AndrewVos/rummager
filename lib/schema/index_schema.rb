@@ -2,20 +2,26 @@ require "json"
 require "schema/document_types"
 
 class IndexSchema
-  attr_reader :name, :document_types
+  attr_reader :name
 
   def initialize(name, document_types)
     @name = name
-    @document_types = document_types
+    @document_types = Hash[document_types.map { |document_type|
+      [document_type.name, document_type]
+    }]
   end
 
   def es_mappings
-    @document_types.reduce({}) { |mappings, document_type|
-      mappings[document_type.name] = {
-        properties: document_type.es_config
+    @document_types.reduce({}) { |mappings, (type_name, document_type)|
+      mappings[type_name] = {
+        "properties" => document_type.es_config
       }
       mappings
     }
+  end
+
+  def document_type(document_type_name)
+    @document_types[document_type_name]
   end
 end
 

@@ -1,7 +1,7 @@
 require "json"
 require "schema/field_types"
 
-FieldDefinition = Struct.new("FieldDefinition", :name, :type, :description, :children, :allowed_values)
+FieldDefinition = Struct.new("FieldDefinition", :name, :type, :es_config, :description, :children, :allowed_values)
 
 class FieldDefinitions
   def initialize(definitions)
@@ -16,6 +16,14 @@ class FieldDefinitions
     @definitions.fetch(field_name) do
       raise %{Undefined field "#{field_name}"}
     end
+  end
+
+  def es_config
+    result = {}
+    @definitions.each { |field_name, definition|
+      result[field_name] = definition.es_config
+    }
+    result
   end
 end
 
@@ -50,9 +58,15 @@ private
         children = parse_definitions(children_hash)
       end
 
+      es_config = type.es_config
+      if children
+        es_config = es_config.merge({"properties" => children.es_config})
+      end
+
       definition = FieldDefinition.new(
         field_name,
         type,
+        es_config,
         value.delete("description") || "",
         children = children
       )

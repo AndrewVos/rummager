@@ -12,7 +12,7 @@ class DocumentType
 
   def es_config
     Hash[@fields.map { |field_name, field|
-      [field_name, field.type.es_config]
+      [field_name, field.es_config]
     }]
   end
 end

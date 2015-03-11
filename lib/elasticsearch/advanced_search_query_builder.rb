@@ -12,6 +12,7 @@ module Elasticsearch
     end
 
     def unknown_keys
+      r= @mappings["edition"]["properties"]["section"]["unique_reference"]
       attachment_keys = if @mappings["edition"]["properties"]["attachments"]
         @mappings["edition"]["properties"]["attachments"]["properties"].keys.map{|k| "attachments.#{k}"}
       else

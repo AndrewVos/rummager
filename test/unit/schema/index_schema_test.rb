@@ -25,7 +25,7 @@ class IndexSchemaTest < ShouldaUnitTestCase
           "manual" => @identifier_es_config,
           "link" => @identifier_es_config,
         }),
-        es_mappings["manual_section"][:properties]
+        es_mappings["manual_section"]["properties"]
       )
     end
   end

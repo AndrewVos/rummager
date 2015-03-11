@@ -5,9 +5,9 @@ require "plek"
 
 class SearchConfig
   def search_server
-    Elasticsearch::SearchServer.new(
+    @server ||= Elasticsearch::SearchServer.new(
       elasticsearch["base_uri"],
-      elasticsearch_schema,
+      SchemaConfig.new(config_path),
       index_names,
       content_index_names,
       self,
@@ -24,11 +24,6 @@ class SearchConfig
 
   def auxiliary_index_names
     elasticsearch["auxiliary_index_names"] || []
-  end
-
-  def elasticsearch_schema
-    config_path = File.expand_path("../config/schema", File.dirname(__FILE__))
-    @elasticsearch_schema ||= SchemaConfig.new(config_path).elasticsearch_schema
   end
 
   def elasticsearch
@@ -64,6 +59,10 @@ class SearchConfig
   end
 
 private
+  def config_path
+    File.expand_path("../config/schema", File.dirname(__FILE__))
+  end
+
   def in_development_environment?
     %w{development test}.include?(ENV['RACK_ENV'])
   end
