@@ -49,7 +49,6 @@
     "description": "A boolean value which can be returned and used for filtering and facetting",
     "es_config": {
       "type": "boolean",
-      "index": "no",
       "include_in_all": false
     }
   },
