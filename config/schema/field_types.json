@@ -40,7 +40,6 @@
     "description": "A floating point number stored such that it can be used in ranking calculations",
     "es_config": {
       "type": "float",
-      "index": "no",
       "store": true
     }
   },
