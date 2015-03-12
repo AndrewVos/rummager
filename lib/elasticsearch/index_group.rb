@@ -25,7 +25,10 @@ module Elasticsearch
 
     def create_index
       index_name = generate_name
-      index_payload = settings.merge("mappings" => mappings)
+      index_payload = {
+        "settings" => settings,
+        "mappings" => mappings,
+      }
       @client.put(
         "#{CGI.escape(index_name)}/",
         index_payload.to_json,

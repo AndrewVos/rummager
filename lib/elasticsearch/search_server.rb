@@ -6,6 +6,8 @@ module Elasticsearch
   class NoSuchIndex < ArgumentError; end
 
   class SearchServer
+    attr_reader :schema
+
     def initialize(base_uri, schema, index_names, content_index_names,
                    search_config)
       @base_uri = URI.parse(base_uri)

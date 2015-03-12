@@ -18,10 +18,11 @@ class SchemaConfig
   end
 
   def elasticsearch_settings(index_name)
-    elasticsearch_index
+    elasticsearch_index["settings"]
   end
 
   def elasticsearch_mappings(index_name)
+    index_name = index_name.sub(/[-_]test$/, '')
     special_mappings = schema_yaml["mappings"]
     if special_mappings.include?(index_name)
       special_mappings[index_name]
