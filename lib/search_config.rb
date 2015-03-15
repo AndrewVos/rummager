@@ -7,11 +7,15 @@ class SearchConfig
   def search_server
     @server ||= Elasticsearch::SearchServer.new(
       elasticsearch["base_uri"],
-      SchemaConfig.new(config_path),
+      schema_config,
       index_names,
       content_index_names,
       self,
     )
+  end
+
+  def schema_config
+    @schema ||= SchemaConfig.new(config_path)
   end
 
   def index_names
