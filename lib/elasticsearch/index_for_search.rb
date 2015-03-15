@@ -32,6 +32,16 @@ module Elasticsearch
       JSON.parse(@client.get_with_payload(path, json_payload))
     end
 
+    def msearch(bodies)
+      header_json = "{}"
+      payload = bodies.map { |body|
+        "#{header_json}\n#{body.to_json}\n"
+      }.join("")
+      logger.debug "Request payload: #{payload}"
+      path = "_msearch"
+      JSON.parse(@client.get_with_payload(path, payload))
+    end
+
     # `options` must have the following key:
     #   :fields - a list of field names to be included in the document
     def documents_by_format(format, options = {})
