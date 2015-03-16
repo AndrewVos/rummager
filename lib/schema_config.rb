@@ -18,7 +18,7 @@ class SchemaConfig
   end
 
   def elasticsearch_settings(index_name)
-    elasticsearch_index["settings"]
+    @settings ||= elasticsearch_index["settings"]
   end
 
   def elasticsearch_mappings(index_name)
