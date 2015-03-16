@@ -67,15 +67,6 @@ module ElasticsearchIntegration
     app.settings.stubs(:enable_queue).returns(false)
   end
 
-  def stub_modified_schema
-    schema = deep_copy(app.settings.search_config.schema_config)
-
-    # Allow the block to modify the schema copy directly
-    yield schema
-
-    app.settings.search_config.stubs(:schema_config).returns(schema)
-  end
-
   def enable_test_index_connections
     WebMock.disable_net_connect!(allow: %r{http://localhost:9200/(_search/scroll|_aliases|[a-z_-]+(_|-)test.*)})
   end
