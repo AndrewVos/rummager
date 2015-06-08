@@ -47,8 +47,8 @@ private
   end
 
   def grouped_results
-    if @allowed_group_fields && search_params[:start] == 0
-      ResultGrouper.new(presented_results, @applied_filters).group
+    if search_params.allowed_group_fields && search_params.start == 0
+      ResultGrouper.new(presented_results, allowed_group_fields).group
     else
       presented_results
     end

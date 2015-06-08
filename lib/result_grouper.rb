@@ -1,13 +1,22 @@
 class ResultGrouper
 
-  def initialize(results, applied_filters, field_presenter)
+  MAXIMUM_NUMBER_OF_GROUPS = 3
+
+
+  def initialize(results, allowed_group_fields, field_presenter)
     @results = results
-    @applied_filters = applied_filters
+    @allowed_group_fields = allowed_group_fields
     @field_presenter = field_presenter
   end
 
   def group
-      unless filtered_on?("specialist_sectors")
+      groups = @results
+      groups = group_by(allowed_group_fields)
+
+      # three times - try and find the best group in the results, remove the
+      # results in that group, try again
+      @allowed_group_fields.
+      unless @allowed_group_fields.include? "specialist_sectors"
         groups = group_by("specialist_sectors")
       else
         groups = []
@@ -95,7 +104,7 @@ private
   end
 
 
-  def group_by(field)
+  def group_by(fields)
     groups = {}
     @results.slice(0, 50).each_with_index do |doc, index|
       topics = [doc[field]].flatten
