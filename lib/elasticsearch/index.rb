@@ -45,6 +45,10 @@ module Elasticsearch
       50
     end
 
+    def self.populate_batch_byte_size
+      1024 * 1024
+    end
+
     # The number of documents to retrieve at once when retrieving all documents
     # Gotcha: this is actually the number of documents per shard, so there will
     # be up to some multiple of this number per page.
@@ -211,16 +215,83 @@ module Elasticsearch
         timeout: LONG_TIMEOUT_SECONDS,
         open_timeout: LONG_OPEN_TIMEOUT_SECONDS,
       }.merge(option_overrides)
+
       all_docs = source_index.all_documents(options)
-      all_docs.each_slice(self.class.populate_batch_size) do |documents|
-        add(documents, options)
-        total_indexed += documents.length
-        logger.info do
-          progress = "#{total_indexed}/#{all_docs.size}"
-          source_name = source_index.index_name
-          "Populated #{progress} from #{source_name} into #{index_name}"
+
+      #batch = []
+      #batch_size = 0
+      #all_docs.each do |document|
+        #document_hash = document.elasticsearch_export
+        #batch << document_hash
+        #batch_size += document_hash.to_json.length
+        #if batch_size >= self.class.populate_batch_byte_size
+          #logger.info "Populating #{batch.length} (#{batch_size / 1024}k) documents"
+          #bulk_index(batch, options)
+          #total_indexed += batch.length
+          #batch = []
+          #batch_size = 0
+          #logger.info "Done (#{total_indexed}/#{all_docs.size})"
+        #end
+      #end
+      #if batch.any? # Catch the final partial batch
+        #logger.info "Populating #{batch.length} (#{batch_size / 1024}k) documents"
+        #bulk_index(batch, options)
+      #end
+
+      #commit
+      #return
+
+      q = Queue.new
+      producer_complete = false
+      producer = Thread.new do
+        all_docs.each_slice(self.class.populate_batch_size) do |documents|
+          q.push(documents)
         end
+        producer_complete = true
       end
+
+      log_mutex = Mutex.new
+      threads = []
+      12.times do |n|
+        th = Thread.new do
+          while true do
+            begin
+              documents = q.pop(true)
+            rescue ThreadError => e
+              raise unless e.message == "queue empty"
+              break if producer_complete
+              sleep 0.1
+              retry
+            end
+            break if documents.nil? or documents.empty?
+            add(documents, options)
+
+            log_mutex.synchronize do
+              total_indexed += documents.length
+              logger.info do
+                progress = "#{total_indexed}/#{all_docs.size}"
+                source_name = source_index.index_name
+                "Thread #{n} Populated #{progress} from #{source_name} into #{index_name}"
+              end
+            end
+          end
+        end
+        threads << th
+      end
+      producer.join
+
+      threads.each {|th| th.join }
+
+
+      #all_docs.each_slice(self.class.populate_batch_size) do |documents|
+        #add(documents, options)
+        #total_indexed += documents.length
+        #logger.info do
+          #progress = "#{total_indexed}/#{all_docs.size}"
+          #source_name = source_index.index_name
+          #"Populated #{progress} from #{source_name} into #{index_name}"
+        #end
+      #end
 
       commit
     end
