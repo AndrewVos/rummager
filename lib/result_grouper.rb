@@ -15,7 +15,6 @@ class ResultGrouper
 
       # three times - try and find the best group in the results, remove the
       # results in that group, try again
-      @allowed_group_fields.
       unless @allowed_group_fields.include? "specialist_sectors"
         groups = group_by("specialist_sectors")
       else
