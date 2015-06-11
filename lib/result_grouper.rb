@@ -1,21 +1,23 @@
 class ResultGrouper
 
+  DOCUMENTS_NEEDED_FOR_GROUPING = 100
+
   MAXIMUM_NUMBER_OF_GROUPS = 3
 
-
-  def initialize(results, allowed_group_fields, field_presenter)
+  def initialize(results, group_by_fields, field_presenter)
     @results = results
-    @allowed_group_fields = allowed_group_fields
+    @group_by_fields = group_by_fields
     @field_presenter = field_presenter
   end
 
   def group
-      groups = @results
-      groups = group_by(allowed_group_fields)
+    groups = find_groups
+
+      groups = group_by(group_by_fields)
 
       # three times - try and find the best group in the results, remove the
       # results in that group, try again
-      unless @allowed_group_fields.include? "specialist_sectors"
+      unless @group_by_fields.include? "specialist_sectors"
         groups = group_by("specialist_sectors")
       else
         groups = []
@@ -102,6 +104,14 @@ private
     !(@applied_filters.find { |filter| filter.field_name == field }.nil?)
   end
 
+  def find_groups
+    groups = {}
+    @results.each_with_index do |doc, index|
+      @group_by_fields.each do |field|
+
+      end
+    end
+  end
 
   def group_by(fields)
     groups = {}

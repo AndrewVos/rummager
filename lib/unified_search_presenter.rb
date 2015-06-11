@@ -47,11 +47,12 @@ private
   end
 
   def grouped_results
-    if search_params.allowed_group_fields && search_params.start == 0
-      ResultGrouper.new(presented_results, allowed_group_fields).group
+    if search_params.allow_group_by && search_params.start == 0
+      ResultGrouper.new(result_documents, search_params.allow_group_by).group
     else
       presented_results
     end
+    # FIXME make sure that only the actual requested return_fields are returned (filter out ones which are in allow_group_by but not in return_fields)
   end
 
   def presented_results

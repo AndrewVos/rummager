@@ -1,6 +1,7 @@
 require "best_bets_checker"
 require "elasticsearch/escaping"
 
+require "result_grouper"
 require "query_components/base_component"
 require "query_components/booster"
 require "query_components/sort"
@@ -43,7 +44,27 @@ class UnifiedSearchBuilder
     QueryComponents::Filter.new(search_params).payload
   end
 
-  private
+private
+
+  def can_group?
+    params[:start] == 0
+  end
+
+  def return_fields
+    if can_group?
+      (params[:return_fields] + params[:allow_group_by]).uniq.sort
+    else
+      params[:return_fields]
+    end
+  end
+
+  def size
+    if can_group?
+      [ResultGrouper.DOCUMENTS_NEEDED_FOR_GROUPING, params[:count]].max
+    else
+      params[:count]
+    end
+  end
 
   def sort
     QueryComponents::Sort.new(search_params).payload
