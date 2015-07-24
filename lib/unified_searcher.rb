@@ -1,5 +1,6 @@
 # Performs a search across all indices used for the GOV.UK site search
 
+require "elasticsearch"
 require "facet_example_fetcher"
 require "unified_search_builder"
 require "unified_search_presenter"
@@ -16,7 +17,10 @@ class UnifiedSearcher
   # Search and combine the indices and return a hash of ResultSet objects
   def search(params)
     builder = UnifiedSearchBuilder.new(params)
-    es_response = index.raw_search(builder.payload)
+    client = Elasticsearch::Client.new log: true
+    es_response = client.search({
+      body: builder.payload
+    })
 
     example_fetcher = FacetExampleFetcher.new(index, es_response, params,
                                               builder)

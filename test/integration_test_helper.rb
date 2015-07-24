@@ -8,7 +8,7 @@ require "support/integration_fixtures"
 class IntegrationTest < MiniTest::Unit::TestCase
   include Rack::Test::Methods
   include IntegrationFixtures
-  include ElasticsearchIntegrationHelpers
+  include CustomElasticsearchIntegrationHelpers
 
   def app
     Rummager

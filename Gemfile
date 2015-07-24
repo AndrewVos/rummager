@@ -18,6 +18,8 @@ gem "rack-logstasher", "0.0.3"
 gem 'airbrake', '4.0.0'
 gem "unf", "0.1.3"
 
+gem 'elasticsearch', '~> 1.0.12'
+
 group :test do
   gem "shoulda-context"
   gem "simplecov", "~> 0.10.0"
