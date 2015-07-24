@@ -1,6 +1,6 @@
 require "uri"
 
-module Elasticsearch
+module CustomElasticsearch
   class ScrollEnumerator < Enumerator
     # How long to hold a scroll cursor open between requests
     # We want to keep this low (eg, 1 minute), because scroll contexts can be

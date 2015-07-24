@@ -1,4 +1,4 @@
-module Elasticsearch
+module CustomElasticsearch
   module Escaping
     LUCENE_SPECIAL_CHARACTERS = Regexp.new("(" + %w[
       + - && || ! ( ) { } [ ] ^ " ~ * ? : \\ /

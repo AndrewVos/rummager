@@ -1,6 +1,6 @@
 require "logging"
 
-module Elasticsearch
+module CustomElasticsearch
   class Client
 
     # Sub-paths almost certainly shouldn't start with leading slashes,

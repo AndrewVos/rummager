@@ -8,7 +8,7 @@ class AdvancedSearchTest < IntegrationTest
   end
 
   def test_returns_json_for_advanced_search_results
-    Elasticsearch::Index.any_instance.stubs(:advanced_search)
+    CustomElasticsearch::Index.any_instance.stubs(:advanced_search)
       .returns(stub(total: 1, results: [sample_document]))
 
     get "/mainstream_test/advanced_search", {per_page: '1', page: '1', keywords: 'meh'}, "HTTP_ACCEPT" => "application/json"
@@ -20,7 +20,7 @@ class AdvancedSearchTest < IntegrationTest
   end
 
   def test_json_response_includes_total_and_results
-    Elasticsearch::Index.any_instance.stubs(:advanced_search)
+    CustomElasticsearch::Index.any_instance.stubs(:advanced_search)
       .returns(stub(total: 1, results: [sample_document]))
 
     get "/mainstream_test/advanced_search.json", {per_page: '1', page: '1', keywords: 'meh'}

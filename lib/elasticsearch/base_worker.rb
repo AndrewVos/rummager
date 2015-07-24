@@ -2,7 +2,7 @@ require "sidekiq"
 require "sidekiq_json_encoding_patch"
 require "airbrake"
 
-module Elasticsearch
+module CustomElasticsearch
   # This class requires the `config.rb` file to be loaded, since it requires
   # access to the `search_config` setting, but including it here can cause a
   # circular require dependency, from:

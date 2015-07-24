@@ -1,6 +1,6 @@
 require "elasticsearch/base_worker"
 
-module Elasticsearch
+module CustomElasticsearch
   class BulkIndexWorker < BaseWorker
     forward_to_failure_queue
 
@@ -10,7 +10,7 @@ module Elasticsearch
 
       begin
         index(index_name).bulk_index(document_hashes)
-      rescue Elasticsearch::IndexLocked
+      rescue CustomElasticsearch::IndexLocked
         logger.info "Index #{index_name} is locked; rescheduling"
         self.class.perform_in(LOCK_DELAY, index_name, document_hashes)
       end

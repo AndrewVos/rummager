@@ -1,4 +1,4 @@
-module ElasticsearchIntegrationHelpers
+module CustomElasticsearchIntegrationHelpers
   AUXILIARY_INDEX_NAMES = ["page-traffic_test", "metasearch_test"]
   INDEX_NAMES = ["mainstream_test", "detailed_test", "government_test"]
   DEFAULT_INDEX_NAME = INDEX_NAMES.first

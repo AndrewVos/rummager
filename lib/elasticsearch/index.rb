@@ -11,7 +11,7 @@ require "elasticsearch/result_set"
 require "elasticsearch/scroll_enumerator"
 require "elasticsearch/search_query_builder"
 
-module Elasticsearch
+module CustomElasticsearch
   class InvalidQuery < ArgumentError; end
   class DocumentNotFound < RuntimeError; end
   class IndexLocked < RuntimeError; end
@@ -26,7 +26,7 @@ module Elasticsearch
   end
 
   class Index
-    include Elasticsearch::Escaping
+    include CustomElasticsearch::Escaping
 
     # An enumerator with a manually-specified size.
     # This means we can count the number of documents in an index without

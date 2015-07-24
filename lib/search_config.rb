@@ -5,7 +5,7 @@ require "plek"
 
 class SearchConfig
   def search_server
-    @server ||= Elasticsearch::SearchServer.new(
+    @server ||= CustomElasticsearch::SearchServer.new(
       elasticsearch["base_uri"],
       schema_config,
       index_names,

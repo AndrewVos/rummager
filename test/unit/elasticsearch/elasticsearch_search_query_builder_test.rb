@@ -22,7 +22,7 @@ class SearchQueryBuilderTest < ShouldaUnitTestCase
   end
 
   def test_query_string_condition
-    builder = Elasticsearch::SearchQueryBuilder.new("tomahawk", mappings)
+    builder = CustomElasticsearch::SearchQueryBuilder.new("tomahawk", mappings)
 
     query_string_condition = extract_condition_by_type(builder.query_hash, :match)
     query_string_condition[:match][:_all].delete(:minimum_should_match)
@@ -38,14 +38,14 @@ class SearchQueryBuilderTest < ShouldaUnitTestCase
   end
 
   def test_minimum_should_match_has_sensible_default
-    builder = Elasticsearch::SearchQueryBuilder.new("one two three", mappings)
+    builder = CustomElasticsearch::SearchQueryBuilder.new("one two three", mappings)
 
     must_conditions = builder.query_hash[:query][:function_score][:query][:bool][:should][0][:bool][:must]
     assert_equal "2<2 3<3 7<50%", must_conditions[0][:match][:_all][:minimum_should_match]
   end
 
   def test_shingle_boosts
-    builder = Elasticsearch::SearchQueryBuilder.new("quick brown fox", mappings)
+    builder = CustomElasticsearch::SearchQueryBuilder.new("quick brown fox", mappings)
     shingle_condition = builder.query_hash[:query][:function_score][:query][:bool][:should][0][:bool][:should].detect do |condition|
       condition[:multi_match] &&
           condition[:multi_match][:analyzer] == "shingled_query_analyzer"
@@ -63,7 +63,7 @@ class SearchQueryBuilderTest < ShouldaUnitTestCase
   end
 
   def test_format_boosts
-    builder = Elasticsearch::SearchQueryBuilder.new("cherokee", mappings)
+    builder = CustomElasticsearch::SearchQueryBuilder.new("cherokee", mappings)
     filters = builder.query_hash[:query][:function_score][:functions]
 
     expected = [
@@ -81,7 +81,7 @@ class SearchQueryBuilderTest < ShouldaUnitTestCase
   end
 
   def test_time_boost
-    builder = Elasticsearch::SearchQueryBuilder.new("sioux", mappings)
+    builder = CustomElasticsearch::SearchQueryBuilder.new("sioux", mappings)
     filters = builder.query_hash[:query][:function_score][:functions]
     expected = {
       filter: { term: { search_format_types: "announcement" } },
@@ -94,7 +94,7 @@ class SearchQueryBuilderTest < ShouldaUnitTestCase
   end
 
   def test_can_scope_to_an_organisation
-    builder = Elasticsearch::SearchQueryBuilder.new("navajo", mappings, organisation: "foreign-commonwealth-office")
+    builder = CustomElasticsearch::SearchQueryBuilder.new("navajo", mappings, organisation: "foreign-commonwealth-office")
     term_condition = extract_condition_by_type(builder.query_hash, :term)
     expected = {
       term: { organisations: "foreign-commonwealth-office" }
@@ -103,12 +103,12 @@ class SearchQueryBuilderTest < ShouldaUnitTestCase
   end
 
   def test_specifies_no_sort_if_none_provided
-    builder = Elasticsearch::SearchQueryBuilder.new("pie", mappings)
+    builder = CustomElasticsearch::SearchQueryBuilder.new("pie", mappings)
     assert_equal [], builder.query_hash[:sort]
   end
 
   def test_can_order_by_any_field
-    builder = Elasticsearch::SearchQueryBuilder.new("pie", mappings, sort: "public_timestamp", order: "asc")
+    builder = CustomElasticsearch::SearchQueryBuilder.new("pie", mappings, sort: "public_timestamp", order: "asc")
     expected = [
       { "public_timestamp" => { "order" => "asc" } }
     ]
@@ -116,7 +116,7 @@ class SearchQueryBuilderTest < ShouldaUnitTestCase
   end
 
   def test_defaults_to_desc_for_sort_order
-    builder = Elasticsearch::SearchQueryBuilder.new("pie", mappings, sort: "public_timestamp")
+    builder = CustomElasticsearch::SearchQueryBuilder.new("pie", mappings, sort: "public_timestamp")
     expected = [
       { "public_timestamp" => { "order" => "desc" } }
     ]
@@ -124,21 +124,21 @@ class SearchQueryBuilderTest < ShouldaUnitTestCase
   end
 
   def test_escapes_the_query_for_lucene
-    builder = Elasticsearch::SearchQueryBuilder.new("how?", mappings)
+    builder = CustomElasticsearch::SearchQueryBuilder.new("how?", mappings)
 
     query_string_condition = extract_condition_by_type(builder.query_hash, :match)
     assert_equal "how\\?", query_string_condition[:match][:_all][:query]
   end
 
   def test_can_optionally_specify_limit
-    builder = Elasticsearch::SearchQueryBuilder.new("anything", mappings, limit: 123)
+    builder = CustomElasticsearch::SearchQueryBuilder.new("anything", mappings, limit: 123)
 
     assert_equal 123, builder.query_hash[:size]
   end
 
   context "validating the query" do
     should "reject ordering by anything but 'asc' or 'desc'" do
-      builder = Elasticsearch::SearchQueryBuilder.new("anything", mappings, order: "elephant")
+      builder = CustomElasticsearch::SearchQueryBuilder.new("anything", mappings, order: "elephant")
 
       assert_equal false, builder.valid?
       assert_equal "Unexpected ordering: elephant", builder.error
@@ -146,7 +146,7 @@ class SearchQueryBuilderTest < ShouldaUnitTestCase
 
     should "reject sorting on fields not in the mappings" do
       fields = { "public_timestamp" => { "type" => "date" } }
-      builder = Elasticsearch::SearchQueryBuilder.new("anything", mappings(fields), sort: "yo_mama")
+      builder = CustomElasticsearch::SearchQueryBuilder.new("anything", mappings(fields), sort: "yo_mama")
 
       assert_equal false, builder.valid?
       assert_equal "Sorting on unknown property: yo_mama", builder.error

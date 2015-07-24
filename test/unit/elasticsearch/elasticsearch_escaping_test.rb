@@ -3,7 +3,7 @@ require "elasticsearch/escaping"
 
 class ElasticsearchEscapingTest  < MiniTest::Unit::TestCase
   class Dummy
-    include Elasticsearch::Escaping
+    include CustomElasticsearch::Escaping
   end
 
   def test_escapes_the_query_for_lucene_chars

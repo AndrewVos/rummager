@@ -57,7 +57,7 @@ class AmendmentTest < IntegrationTest
     index = stub_index
     index.expects(:amend)
       .with("/foobang", anything)
-      .raises(Elasticsearch::DocumentNotFound)
+      .raises(CustomElasticsearch::DocumentNotFound)
 
     post "/documents/%2Ffoobang", {title: "New exciting title"}
 

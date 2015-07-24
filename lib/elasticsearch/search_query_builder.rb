@@ -1,8 +1,8 @@
 require "elasticsearch/escaping"
 
-module Elasticsearch
+module CustomElasticsearch
   class SearchQueryBuilder
-    include Elasticsearch::Escaping
+    include CustomElasticsearch::Escaping
 
     QUERY_ANALYZER = "query_with_old_synonyms"
 

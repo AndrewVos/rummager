@@ -1,8 +1,8 @@
 require "elasticsearch/escaping"
 
-module Elasticsearch
+module CustomElasticsearch
   class AdvancedSearchQueryBuilder
-    include Elasticsearch::Escaping
+    include CustomElasticsearch::Escaping
 
     def initialize(keywords, filter_params, sort_order, mappings)
       @keywords = keywords

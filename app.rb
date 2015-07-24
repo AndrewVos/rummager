@@ -30,7 +30,7 @@ class Rummager < Sinatra::Application
   def current_index
     index_name = params["index"] || settings.default_index_name
     search_server.index(index_name)
-  rescue Elasticsearch::NoSuchIndex
+  rescue CustomElasticsearch::NoSuchIndex
     halt(404)
   end
 
@@ -79,11 +79,11 @@ class Rummager < Sinatra::Application
     halt(503, "Redis queue timed out")
   end
 
-  error Elasticsearch::InvalidQuery do
+  error CustomElasticsearch::InvalidQuery do
     halt(422, env['sinatra.error'].message)
   end
 
-  error Elasticsearch::BulkIndexFailure do
+  error CustomElasticsearch::BulkIndexFailure do
     halt(500, env['sinatra.error'].message)
   end
 
@@ -337,7 +337,7 @@ class Rummager < Sinatra::Application
       end
     rescue ArgumentError => e
       text_error e.message
-    rescue Elasticsearch::DocumentNotFound
+    rescue CustomElasticsearch::DocumentNotFound
       halt 404
     end
   end

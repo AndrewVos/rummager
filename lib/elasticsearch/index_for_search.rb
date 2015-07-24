@@ -2,7 +2,7 @@ require "rest-client"
 require "json"
 require "elasticsearch/client"
 
-module Elasticsearch
+module CustomElasticsearch
 
   class IndexForSearch
     attr_reader :index_names, :schema

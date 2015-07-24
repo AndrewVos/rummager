@@ -39,7 +39,7 @@ class IndexingTest < IntegrationTest
     app.settings.expects(:enable_queue).returns(false)
     index = stub_index
     index.expects(:document_from_hash).with(document_hashes[0]).returns(:foo)
-    index.expects(:add).raises(Elasticsearch::BulkIndexFailure.new([]))
+    index.expects(:add).raises(CustomElasticsearch::BulkIndexFailure.new([]))
 
     post "/documents", document_hashes.to_json, :content_type => :json
 

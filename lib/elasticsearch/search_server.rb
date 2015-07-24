@@ -2,7 +2,7 @@ require "uri"
 require "elasticsearch/index_group"
 require "elasticsearch/index_for_search"
 
-module Elasticsearch
+module CustomElasticsearch
   class NoSuchIndex < ArgumentError; end
 
   class SearchServer

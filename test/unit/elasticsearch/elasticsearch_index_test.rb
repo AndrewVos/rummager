@@ -9,9 +9,9 @@ class ElasticsearchIndexTest < MiniTest::Unit::TestCase
   def setup
     @base_uri = URI.parse("http://example.com:9200")
     search_config = SearchConfig.new
-    @wrapper = Elasticsearch::Index.new(@base_uri, "mainstream_test", "mainstream_test", default_mappings, search_config)
+    @wrapper = CustomElasticsearch::Index.new(@base_uri, "mainstream_test", "mainstream_test", default_mappings, search_config)
 
-    @traffic_index = Elasticsearch::Index.new(@base_uri, "page-traffic_test", "page-traffic_test", page_traffic_mappings, search_config)
+    @traffic_index = CustomElasticsearch::Index.new(@base_uri, "page-traffic_test", "page-traffic_test", page_traffic_mappings, search_config)
     @wrapper.stubs(:traffic_index).returns(@traffic_index)
     @traffic_index.stubs(:real_name).returns("page-traffic_test")
   end
@@ -224,7 +224,7 @@ class ElasticsearchIndexTest < MiniTest::Unit::TestCase
     begin
       @wrapper.add(documents)
       flunk("No exception raised")
-    rescue Elasticsearch::BulkIndexFailure => e
+    rescue CustomElasticsearch::BulkIndexFailure => e
       assert_equal "Failed inserts: /foo/baz (stuff)", e.message
       assert_equal ["/foo/baz"], e.failed_keys
     end
@@ -407,7 +407,7 @@ EOS
     mock_queue = mock("document queue") do
       expects(:queue_many).with([json_document])
     end
-    Elasticsearch::IndexQueue.expects(:new)
+    CustomElasticsearch::IndexQueue.expects(:new)
       .with("mainstream_test")
       .returns(mock_queue)
 
@@ -418,7 +418,7 @@ EOS
     mock_queue = mock("document queue") do
       expects(:queue_delete).with("edition", "/foobang")
     end
-    Elasticsearch::IndexQueue.expects(:new)
+    CustomElasticsearch::IndexQueue.expects(:new)
       .with("mainstream_test")
       .returns(mock_queue)
 
@@ -461,7 +461,7 @@ EOS
     @wrapper.expects(:get).with("/foobang").returns(nil)
     @wrapper.expects(:add).never
 
-    assert_raises Elasticsearch::DocumentNotFound do
+    assert_raises CustomElasticsearch::DocumentNotFound do
       @wrapper.amend("/foobang", "title" => "New title")
     end
   end
@@ -495,7 +495,7 @@ EOS
   end
 
   def test_raises_error_for_invalid_query
-    assert_raises Elasticsearch::InvalidQuery do
+    assert_raises CustomElasticsearch::InvalidQuery do
       @wrapper.search("keyword search", sort: "not_a_field_in_mappings")
     end
   end
@@ -612,7 +612,7 @@ EOS
   def test_changing_scroll_id
     search_uri = "http://example.com:9200/mainstream_test/_search?scroll=60m&search_type=scan&size=2"
 
-    Elasticsearch::Index.stubs(:scroll_batch_size).returns(2)
+    CustomElasticsearch::Index.stubs(:scroll_batch_size).returns(2)
 
     stub_request(:get, search_uri).with(
       body: {query: {match_all: {}}}.to_json

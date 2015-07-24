@@ -4,7 +4,7 @@ require "rest-client"
 require "cgi"
 require "elasticsearch/index"
 
-module Elasticsearch
+module CustomElasticsearch
 
   # A group of related indexes.
   #

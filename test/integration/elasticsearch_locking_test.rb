@@ -16,7 +16,7 @@ class ElasticsearchLockingTest < IntegrationTest
   def test_should_fail_to_insert_when_index_locked
     index = search_server.index_group(DEFAULT_INDEX_NAME).current
     index.lock
-    assert_raises Elasticsearch::IndexLocked do
+    assert_raises CustomElasticsearch::IndexLocked do
       index.add([sample_document])
     end
   end
@@ -25,7 +25,7 @@ class ElasticsearchLockingTest < IntegrationTest
     index = search_server.index_group(DEFAULT_INDEX_NAME).current
     index.add([sample_document])
     index.lock
-    assert_raises Elasticsearch::IndexLocked do
+    assert_raises CustomElasticsearch::IndexLocked do
       index.amend(sample_document.link, "title" => "New title")
     end
   end
@@ -34,7 +34,7 @@ class ElasticsearchLockingTest < IntegrationTest
     index = search_server.index_group(DEFAULT_INDEX_NAME).current
     index.add([sample_document])
     index.lock
-    assert_raises Elasticsearch::IndexLocked do
+    assert_raises CustomElasticsearch::IndexLocked do
       index.delete("edition", sample_document.link)
     end
   end

@@ -1,6 +1,6 @@
 module QueryComponents
   class BaseComponent
-    include Elasticsearch::Escaping
+    include CustomElasticsearch::Escaping
 
     attr_reader :params
 

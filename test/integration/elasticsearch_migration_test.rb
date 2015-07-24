@@ -119,7 +119,7 @@ class ElasticsearchMigrationTest < IntegrationTest
   def test_handles_errors_correctly
     # Test that an error while re-indexing is reported, and aborts the whole process.
 
-    Elasticsearch::Index.any_instance.stubs(:bulk_index).raises(Elasticsearch::IndexLocked)
+    CustomElasticsearch::Index.any_instance.stubs(:bulk_index).raises(CustomElasticsearch::IndexLocked)
 
     get "/unified_search?q=directive"
     assert_equal 2, JSON.parse(last_response.body)["results"].length
@@ -129,7 +129,7 @@ class ElasticsearchMigrationTest < IntegrationTest
     index_group = search_server.index_group("mainstream_test")
     original_index_name = index_group.current_real.real_name
 
-    assert_raises Elasticsearch::IndexLocked do
+    assert_raises CustomElasticsearch::IndexLocked do
       BulkLoader.new(search_config, "mainstream_test").load_from_current_index
     end
 

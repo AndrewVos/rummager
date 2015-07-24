@@ -11,23 +11,23 @@ class IndexQueueTest < MiniTest::Unit::TestCase
   end
 
   def test_can_queue_documents_in_bulk
-    Elasticsearch::BulkIndexWorker.expects(:perform_async)
+    CustomElasticsearch::BulkIndexWorker.expects(:perform_async)
       .with("test-index", sample_document_hashes)
-    queue = Elasticsearch::IndexQueue.new("test-index")
+    queue = CustomElasticsearch::IndexQueue.new("test-index")
     queue.queue_many(sample_document_hashes)
   end
 
   def test_can_delete_documents
-    Elasticsearch::DeleteWorker.expects(:perform_async)
+    CustomElasticsearch::DeleteWorker.expects(:perform_async)
       .with("test-index", "edition", "/foobang")
-    queue = Elasticsearch::IndexQueue.new("test-index")
+    queue = CustomElasticsearch::IndexQueue.new("test-index")
     queue.queue_delete("edition", "/foobang")
   end
 
   def test_can_amend_documents
-    Elasticsearch::AmendWorker.expects(:perform_async)
+    CustomElasticsearch::AmendWorker.expects(:perform_async)
       .with("test-index", "/foobang", "title" => "Cheese")
-    queue = Elasticsearch::IndexQueue.new("test-index")
+    queue = CustomElasticsearch::IndexQueue.new("test-index")
     queue.queue_amend("/foobang", "title" => "Cheese")
   end
 end

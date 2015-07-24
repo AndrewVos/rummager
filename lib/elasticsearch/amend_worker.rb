@@ -1,6 +1,6 @@
 require "elasticsearch/base_worker"
 
-module Elasticsearch
+module CustomElasticsearch
   class AmendWorker < BaseWorker
     forward_to_failure_queue
 
@@ -10,7 +10,7 @@ module Elasticsearch
       logger.debug "Amendments: #{updates}"
       begin
         index(index_name).amend(document_link, updates)
-      rescue Elasticsearch::IndexLocked
+      rescue CustomElasticsearch::IndexLocked
         logger.info "Index #{index_name} is locked; rescheduling"
         self.class.perform_in(LOCK_DELAY, index_name, document_link, updates)
       end

@@ -2,7 +2,7 @@ require "elasticsearch/bulk_index_worker"
 require "elasticsearch/delete_worker"
 require "elasticsearch/amend_worker"
 
-module Elasticsearch
+module CustomElasticsearch
   # A queue of operations on an index.
   class IndexQueue
 

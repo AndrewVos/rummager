@@ -82,6 +82,6 @@ private
   end
 
   def client
-    @client ||= Elasticsearch::Client.new('http://localhost:9200/')
+    @client ||= CustomElasticsearch::Client.new('http://localhost:9200/')
   end
 end

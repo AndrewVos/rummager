@@ -16,11 +16,11 @@ class ClientTest < MiniTest::Unit::TestCase
     RestClient::Request.expects(:execute).with(has_entry(method: :get))
       .raises(internal_server_error)
 
-    Logging.logger[Elasticsearch::Client].expects(:error)
+    Logging.logger[CustomElasticsearch::Client].expects(:error)
       .with(regexp_matches(/STUFF AND THINGS BROKE/))
 
     assert_raises RestClient::InternalServerError do
-      Elasticsearch::Client.new("http://localhost/").get("")
+      CustomElasticsearch::Client.new("http://localhost/").get("")
     end
   end
 
@@ -30,10 +30,10 @@ class ClientTest < MiniTest::Unit::TestCase
     RestClient::Request.expects(:execute).with(has_entry(method: :get))
       .raises(internal_server_error)
 
-    Logging.logger[Elasticsearch::Client].expects(:warn)
+    Logging.logger[CustomElasticsearch::Client].expects(:warn)
       .with(regexp_matches(/STUFF AND THINGS BROKE/))
 
-    client = Elasticsearch::Client.new("http://localhost/")
+    client = CustomElasticsearch::Client.new("http://localhost/")
     assert_raises RestClient::InternalServerError do
       client.with_error_log_level(:warn) do
         client.get("")
@@ -49,12 +49,12 @@ class ClientTest < MiniTest::Unit::TestCase
     RestClient::Request.expects(:execute).with(has_entry(method: :head))
       .raises(internal_server_error("More breakage"))
 
-    Logging.logger[Elasticsearch::Client].expects(:warn)
+    Logging.logger[CustomElasticsearch::Client].expects(:warn)
       .with(regexp_matches(/STUFF AND THINGS BROKE/))
-    Logging.logger[Elasticsearch::Client].expects(:error)
+    Logging.logger[CustomElasticsearch::Client].expects(:error)
       .with(regexp_matches(/More breakage/))
 
-    client = Elasticsearch::Client.new("http://localhost/")
+    client = CustomElasticsearch::Client.new("http://localhost/")
     assert_raises RestClient::InternalServerError do
       client.with_error_log_level(:warn) do
         client.get("")
@@ -66,16 +66,16 @@ class ClientTest < MiniTest::Unit::TestCase
   end
 
   def test_timeout
-    # Test that Elasticsearch::Client accepts a timeout option and passes it on
+    # Test that CustomElasticsearch::Client accepts a timeout option and passes it on
     # to RestClient
     RestClient::Request.expects(:execute).with(has_entries(timeout: 10))
-    Elasticsearch::Client.new("http://localhost/", timeout: 10).get("")
+    CustomElasticsearch::Client.new("http://localhost/", timeout: 10).get("")
   end
 
   def test_open_timeout
-    # Test that Elasticsearch::Client accepts an open_timeout option and passes
+    # Test that CustomElasticsearch::Client accepts an open_timeout option and passes
     # it on to RestClient
     RestClient::Request.expects(:execute).with(has_entries(open_timeout: 10))
-    Elasticsearch::Client.new("http://localhost/", open_timeout: 10).get("")
+    CustomElasticsearch::Client.new("http://localhost/", open_timeout: 10).get("")
   end
 end
