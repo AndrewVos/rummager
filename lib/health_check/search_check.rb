@@ -38,15 +38,18 @@ module HealthCheck
 
       expectation = positive_check? ? "<= #{minimum_rank}" : "> #{minimum_rank}"
       if found_index
-        message = "Found '#{path}' for '#{search_term}' in position #{found_index + 1} (expected #{expectation})"
+        position = "#{found_index + 1}"
       else
-        message = "Didn't find '#{path}' for '#{search_term}' in any position (expected #{expectation})"
+        position = ""
       end
+
       if success
-        logger.pass(message)
+        status = "PASS"
       else
-        logger.fail(message)
+        status = "FAIL"
       end
+
+      logger << "#{status},#{path},#{search_term},#{position},#{expectation}\n"
 
       score = success ? weight : 0
       Result.new(success, score, weight)

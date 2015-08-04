@@ -9,6 +9,8 @@ module HealthCheck
 
     def checks
       checks = []
+      logger << "\nStatus,Path,Search Term,Position,Expectation,Message,Row\n"
+
       CSV.parse(@file, headers: true).each do |row|
         begin
           check = SearchCheck.new
@@ -21,10 +23,10 @@ module HealthCheck
           if check.valid?
             checks << check
           else
-            logger.error("Skipping invalid or incomplete row: #{row.to_s.chomp}")
+            logger << "ERROR,,,,Invalid or incomplete row,#{row.to_s.chomp.gsub(",", "")}\n"
           end
         rescue => e
-          logger.error("Skipping invalid or incomplete row: #{row.to_s.chomp} because: #{e.message}")
+          logger << "ERROR,,,,Invalid or incomplete row - #{e.message},#{row.to_s.chomp.gsub(",", "")}\n"
         end
       end
       checks

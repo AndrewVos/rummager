@@ -52,10 +52,6 @@ module HealthCheck
           check = SearchCheck.new("carmen", "should not", "/a", 1, 200)
           search_results = ["https://www.gov.uk/a", "https://www.gov.uk/b"]
 
-          logger = mock("logger")
-          logger.expects(:fail)
-          check.stubs(:logger).returns(logger)
-
           result = check.result(search_results)
 
           assert_equal false, result.success
@@ -67,10 +63,6 @@ module HealthCheck
           check = SearchCheck.new("carmen", "should not", "/a", 1, 200)
           search_results = ["https://www.gov.uk/b", "https://www.gov.uk/a"]
 
-          logger = mock("logger")
-          logger.expects(:pass)
-          check.stubs(:logger).returns(logger)
-
           result = check.result(search_results)
 
           assert_equal true, result.success
@@ -81,10 +73,6 @@ module HealthCheck
         should "pass" do
           check = SearchCheck.new("carmen", "should not", "/x", 1, 200)
           search_results = ["https://www.gov.uk/a", "https://www.gov.uk/b"]
-
-          logger = mock("logger")
-          logger.expects(:pass)
-          check.stubs(:logger).returns(logger)
 
           result = check.result(search_results)
 
