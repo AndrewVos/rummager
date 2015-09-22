@@ -2,9 +2,11 @@ require "test_helper"
 require "elasticsearch/index"
 require "search_config"
 require "webmock"
+require 'gds_api/test_helpers/content_api'
 
 class ElasticsearchIndexTest < MiniTest::Unit::TestCase
   include Fixtures::DefaultMappings
+  include GdsApi::TestHelpers::ContentApi
 
   def setup
     @base_uri = URI.parse("http://example.com:9200")
@@ -59,6 +61,18 @@ class ElasticsearchIndexTest < MiniTest::Unit::TestCase
   { "index": { "_index":"mainstream_test", "_type":"edition", "_id":"/foo/bar", "ok":true } }
 ]}
     eos
+  end
+
+  def stub_indexing_request_for_single_document(document)
+    id = document["link"]
+    payload = <<-eos
+{"index":{"_type":"edition","_id":"#{id}"}}
+#{document.to_json}
+eos
+
+    request = stub_request(:post, "http://example.com:9200/mainstream_test/_bulk")
+                  .with(body: payload)
+                  .to_return(body: successful_response)
   end
 
   def test_real_name
@@ -133,6 +147,7 @@ class ElasticsearchIndexTest < MiniTest::Unit::TestCase
 
   def test_should_bulk_update_documents
     stub_popularity_index_requests(["/foo/bar"], 1.0)
+    content_api_does_not_have_an_artefact("foo/bar")
 
     # TODO: factor out with FactoryGirl
     json_document = {
@@ -161,6 +176,7 @@ class ElasticsearchIndexTest < MiniTest::Unit::TestCase
 
   def test_should_bulk_update_documents_with_id_field
     stub_popularity_index_requests(["/a/link"], 1.0)
+    content_api_does_not_have_an_artefact("a/link")
 
     document = stub("document", elasticsearch_export: {
         "_type" => "not_an_edition",
@@ -189,6 +205,7 @@ class ElasticsearchIndexTest < MiniTest::Unit::TestCase
 
   def test_should_bulk_update_documents_with_raw_command_stream
     stub_popularity_index_requests(["/foo/bar"], 1.0)
+    content_api_does_not_have_an_artefact("foo/bar")
 
     # Note that this comes with a trailing newline, which elasticsearch needs
     payload = <<-eos
@@ -205,6 +222,8 @@ class ElasticsearchIndexTest < MiniTest::Unit::TestCase
 
   def test_should_raise_error_for_failures_in_bulk_update
     stub_popularity_index_requests(["/foo/bar", "/foo/baz"], 1.0, 20)
+    content_api_does_not_have_an_artefact("foo/bar")
+    content_api_does_not_have_an_artefact("foo/baz")
 
     json_documents = [
       { "_type" => "edition", "link" => "/foo/bar", "title" => "TITLE ONE", "popularity" => "0.09090909090909091" },
@@ -233,6 +252,7 @@ class ElasticsearchIndexTest < MiniTest::Unit::TestCase
   def test_should_set_sensible_defaults_with_no_popularity_data
     # return no popularity data for this path
     stub_popularity_index_requests(["/foo/bar"], 0, 0, 10, [])
+    content_api_does_not_have_an_artefact("foo/bar")
 
     # TODO: factor out with FactoryGirl
     json_document = {
@@ -256,6 +276,37 @@ eos
     request = stub_request(:post, "http://example.com:9200/mainstream_test/_bulk")
                   .with(body: payload)
                   .to_return(body: response)
+    @wrapper.add [document]
+
+    assert_requested(request)
+  end
+
+  def test_should_add_tags_from_content_api
+    stub_popularity_index_requests(["/foo/bar"], 0, 0, 10, [])
+    artefact = artefact_for_slug("foo/bar")
+    artefact["tags"] = [
+      tag_for_slug("benefits/advice", "section"),
+      tag_for_slug("benefits/more-advice", "specialist_sector"),
+      tag_for_slug("hmrc", "organisation"),
+    ]
+    content_api_has_an_artefact("foo/bar", artefact)
+
+    json_document = {
+      "_type" => "edition",
+      "link" => "/foo/bar",
+    }
+    document = stub("document", elasticsearch_export: json_document)
+
+    request = stub_indexing_request_for_single_document({
+      "_type" => "edition",
+      "link" => "/foo/bar",
+      "popularity" => 0,
+      "specialist_sectors" => ["benefits/more-advice"],
+      "mainstream_browse_pages" => ["benefits/advice"],
+      "organisations" => ["hmrc"],
+      "format" => "edition",
+    })
+
     @wrapper.add [document]
 
     assert_requested(request)

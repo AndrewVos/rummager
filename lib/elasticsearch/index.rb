@@ -3,6 +3,7 @@ require "logging"
 require "cgi"
 require "json"
 require "rest-client"
+require 'gds_api/content_api'
 require "elasticsearch/advanced_search_query_builder"
 require "elasticsearch/client"
 require "elasticsearch/index_queue"
@@ -62,6 +63,7 @@ module Elasticsearch
       @index_uri = base_uri + "#{CGI.escape(index_name)}/"
 
       @client = build_client
+      @content_api = GdsApi::ContentApi.new(Plek.find("contentapi"))
       @index_name = index_name
       raise ArgumentError, "Missing index_name parameter" unless @index_name
       @mappings = mappings
@@ -431,7 +433,7 @@ module Elasticsearch
     end
 
     def index_doc(doc_hash, popularities, options)
-      DocumentPreparer.new(@client).prepared(
+      DocumentPreparer.new(@client, @content_api).prepared(
         doc_hash,
         popularities,
         options,

@@ -1,11 +1,13 @@
 class DocumentPreparer
-  def initialize(client)
+  def initialize(client, content_api)
     @client = client
+    @content_api = content_api
   end
 
   def prepared(doc_hash, popularities, options, is_content_index)
     if is_content_index
       doc_hash = prepare_popularity_field(doc_hash, popularities)
+      doc_hash = prepare_tags(doc_hash)
       doc_hash = prepare_format_field(doc_hash)
     end
 
@@ -22,6 +24,54 @@ private
       pop = popularities[link]
     end
     doc_hash.merge("popularity" => pop)
+  end
+
+  def artefact_for_link(link)
+    if link.match(/\Ahttps?:\/\//)
+      # We don't support tags for things which are external links.
+      return nil
+    end
+    link = link.sub(/\A\//, '')
+    begin
+      @content_api.artefact!(link)
+    rescue GdsApi::HTTPNotFound
+      nil
+    end
+  end
+
+  def tags_from_artefact(artefact)
+    tags = Hash.new { [] }
+    artefact.tags.each do |tag|
+      slug = tag.slug
+      type = tag.details.type
+      case type
+      when "organisation"
+        tags["organisations"] <<= slug
+      when "section"
+        tags["mainstream_browse_pages"] <<= slug
+      when "specialist_sector"
+        tags["specialist_sectors"] <<= slug
+      end
+    end
+    tags
+  end
+
+  def merge_tags(doc_hash, extra_tags)
+    merged_tags = {}
+    %w{specialist_sectors mainstream_browse_pages organisations}.each do |tag_type|
+      merged_tags[tag_type] = doc_hash.fetch(tag_type, []).concat(extra_tags[tag_type]).uniq
+    end
+    merged_tags
+  end
+
+  def prepare_tags(doc_hash)
+    artefact = artefact_for_link(doc_hash["link"])
+    if artefact.nil?
+      return doc_hash
+    end
+    from_content_api = tags_from_artefact(artefact)
+
+    doc_hash.merge(merge_tags(doc_hash, from_content_api))
   end
 
   def prepare_format_field(doc_hash)
