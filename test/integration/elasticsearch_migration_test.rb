@@ -45,10 +45,6 @@ class ElasticsearchMigrationTest < IntegrationTest
     end
   end
 
-  def commit_index
-    post "/commit", nil
-  end
-
   def assert_result_links(*links)
     assert_equal links, parsed_response["results"].map { |r| r["link"] }
   end
