@@ -22,14 +22,14 @@ class ElasticsearchIndexingTest < IntegrationTest
   def test_should_indicate_success_in_response_code_when_adding_a_new_document
     create_test_indexes
 
-    post "/documents", @sample_document.to_json
+    insert_document("mainstream_test", @sample_document)
     assert last_response.ok?
   end
 
   def test_after_adding_a_document_to_index_should_be_able_to_retrieve_it_again
     create_test_indexes
 
-    post "/documents", @sample_document.to_json
+    insert_document("mainstream_test", @sample_document)
 
     assert_document_is_in_rummager(@sample_document)
   end
@@ -46,7 +46,7 @@ class ElasticsearchIndexingTest < IntegrationTest
       },
     }
 
-    post "/documents", document.to_json
+    insert_document("mainstream_test", document)
 
     assert_document_is_in_rummager(document)
   end

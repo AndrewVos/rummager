@@ -71,8 +71,7 @@ class ElasticsearchAdvancedSearchTest < IntegrationTest
 
   def add_sample_documents
     sample_document_attributes.each do |sample_document|
-      post "/documents", sample_document.to_json
-      assert last_response.ok?
+      insert_document(@index_name, sample_document)
     end
   end
 
@@ -171,8 +170,7 @@ class ElasticsearchAdvancedSearchTest < IntegrationTest
       }
     ]
     more_documents.each do |sample_document|
-      post "/documents", sample_document.to_json
-      assert last_response.ok?
+      insert_document(@index_name, sample_document)
     end
     commit_index
 

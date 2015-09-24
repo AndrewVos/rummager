@@ -40,8 +40,7 @@ class ElasticsearchMigrationTest < IntegrationTest
 
   def add_documents(documents)
     documents.each do |document|
-      post "/documents", document.to_json
-      assert last_response.ok?
+      insert_document("mainstream_test", document)
     end
   end
 
@@ -77,11 +76,13 @@ class ElasticsearchMigrationTest < IntegrationTest
     test_batch_size = 30
     index_group = search_server.index_group("mainstream_test")
     extra_documents = (test_batch_size + 5).times.map do |n|
+      link = "/doc-#{n}"
+      prepare_document_lookups(link)
       {
         "_type" => "edition",
         "title" => "Document #{n}",
         "format" => "answer",
-        "link" => "/doc-#{n}",
+        "link" => link,
       }
     end
     index_group.current_real.bulk_index(extra_documents)

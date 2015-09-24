@@ -13,6 +13,7 @@ class ElasticsearchLockingTest < IntegrationTest
   end
 
   def test_should_fail_to_insert_when_index_locked
+    prepare_document_lookups(sample_document.link)
     index = search_server.index_group(DEFAULT_INDEX_NAME).current
     index.lock
     assert_raises Elasticsearch::IndexLocked do
@@ -21,6 +22,7 @@ class ElasticsearchLockingTest < IntegrationTest
   end
 
   def test_should_fail_to_amend_when_index_locked
+    prepare_document_lookups(sample_document.link)
     index = search_server.index_group(DEFAULT_INDEX_NAME).current
     index.add([sample_document])
     index.lock
@@ -30,6 +32,7 @@ class ElasticsearchLockingTest < IntegrationTest
   end
 
   def test_should_fail_to_delete_when_index_locked
+    prepare_document_lookups(sample_document.link)
     index = search_server.index_group(DEFAULT_INDEX_NAME).current
     index.add([sample_document])
     index.lock
@@ -39,6 +42,7 @@ class ElasticsearchLockingTest < IntegrationTest
   end
 
   def test_should_unlock_index
+    prepare_document_lookups(sample_document.link)
     index = search_server.index_group(DEFAULT_INDEX_NAME).current
     index.lock
     index.unlock

@@ -44,7 +44,7 @@ class BulkLoaderTest < IntegrationTest
   end
 
   def test_updates_an_existing_document
-    insert_stub_popularity_data(@sample_document["link"])
+    prepare_document_lookups(@sample_document["link"])
 
     index_group = search_server.index_group(DEFAULT_INDEX_NAME)
     old_index = index_group.current_real
@@ -71,8 +71,8 @@ class BulkLoaderTest < IntegrationTest
     # get returned is 1/(2 + popularity_rank_offset), where
     # popularity_rank_offset is a configuration value which is set to 10 by
     # default.
-    insert_stub_popularity_data(@sample_document["link"])
-    insert_stub_popularity_data("/another-example")
+    prepare_document_lookups(@sample_document["link"])
+    prepare_document_lookups("/another-example")
 
     bulk_loader = BulkLoader.new(app.settings.search_config, DEFAULT_INDEX_NAME)
     bulk_loader.load_from(StringIO.new(index_payload(@sample_document)))

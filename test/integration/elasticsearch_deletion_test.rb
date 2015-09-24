@@ -64,12 +64,10 @@ class ElasticsearchDeletionTest < IntegrationTest
 
   def add_sample_documents
     sample_document_attributes.each do |index_data|
-      path = "/documents"
-      path = "/#{index_data['index']}#{path}" if index_data.has_key?('index')
+      index_name = index_data.fetch('index', 'mainstream_test')
 
       index_data['documents'].each do |sample_document|
-        post path, sample_document.to_json
-        assert last_response.ok?
+        insert_document(index_name, sample_document)
       end
     end
   end

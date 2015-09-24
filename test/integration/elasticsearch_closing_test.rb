@@ -20,6 +20,7 @@ class ElasticsearchClosingTest < IntegrationTest
   end
 
   def test_should_fail_to_insert_or_get_when_index_closed
+    prepare_document_lookups(sample_document.link)
     create_test_index
 
     index = search_server.index_group(DEFAULT_INDEX_NAME).current
