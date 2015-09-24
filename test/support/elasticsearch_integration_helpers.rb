@@ -1,4 +1,8 @@
+require 'gds_api/test_helpers/content_api'
+
 module ElasticsearchIntegrationHelpers
+  include GdsApi::TestHelpers::ContentApi
+
   AUXILIARY_INDEX_NAMES = ["page-traffic_test", "metasearch_test"]
   INDEX_NAMES = ["mainstream_test", "government_test"]
   DEFAULT_INDEX_NAME = INDEX_NAMES.first
@@ -61,6 +65,29 @@ module ElasticsearchIntegrationHelpers
 
     RestClient.post "http://localhost:9200/page-traffic_test/page-traffic/#{CGI.escape(path)}", document_atts.to_json
     RestClient.post "http://localhost:9200/page-traffic_test/_refresh", nil
+  end
+
+  def prepare_document_lookups(link)
+    unless link.nil?
+      insert_stub_popularity_data(link)
+      content_api_does_not_have_an_artefact(link.sub(/\A\//, ''))
+    end
+  end
+
+  def insert_document(index_name, attributes)
+    attributes.stringify_keys!
+    prepare_document_lookups(attributes["link"])
+    post "/#{index_name}/documents", attributes.to_json
+    assert last_response.ok?, "Failed to insert document"
+  end
+
+  def commit_document(index_name, attributes)
+    insert_document(index_name, attributes)
+    commit_index(index_name)
+  end
+
+  def commit_index(index_name = "mainstream_test")
+    post "/#{index_name}/commit", nil
   end
 
   def try_remove_test_index(index_name = DEFAULT_INDEX_NAME)
