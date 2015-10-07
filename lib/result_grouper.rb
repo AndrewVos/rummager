@@ -4,10 +4,9 @@ class ResultGrouper
 
   MAXIMUM_NUMBER_OF_GROUPS = 3
 
-  def initialize(results, group_by_fields, field_presenter)
+  def initialize(results, group_by_fields)
     @results = results
     @group_by_fields = group_by_fields
-    @field_presenter = field_presenter
   end
 
   def group

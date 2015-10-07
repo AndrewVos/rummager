@@ -48,7 +48,7 @@ private
 
   def grouped_results
     if search_params.allow_group_by && search_params.start == 0
-      ResultGrouper.new(result_documents, search_params.allow_group_by).group
+      ResultGrouper.new(presented_results, search_params.allow_group_by).group
     else
       presented_results
     end
