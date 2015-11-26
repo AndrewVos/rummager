@@ -33,7 +33,7 @@ contains exactly the same number of documents as the original index.
 You should run this task if the index schema has changed.
 
 "
-  task :migrate_index do
+  task migrate_index: ["taxonomy_prototype:download_data"]  do
     require 'bulk_loader'
 
     index_names.each do |index_name|
